@@ -19,14 +19,18 @@ class ImageMaskClipper extends CustomClipper<Path> {
       for (int w = 0; w < width; w++) {
         final opacity = points[confidenceCounter] * 0.25;
         if (opacity > 0.19) {
-          path.addRect(
-            Rect.fromLTWH(
-              w.toDouble() * size.width / width,
-              h.toDouble() * size.height / height,
-              1,
-              1,
+          path.addOval(
+            Rect.fromCircle(
+              center: Offset(
+                w.toDouble() * size.width / width,
+                h.toDouble() * size.height / height,
+              ),
+              radius: 1,
             ),
           );
+          // path.addRect(
+          //
+          // );
         }
         // canvas.dr
         confidenceCounter++;

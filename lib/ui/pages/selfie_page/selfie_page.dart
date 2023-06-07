@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_selfie_segmentation/google_mlkit_selfie_segmentation.dart';
+import 'package:image/image.dart' as img;
 import 'package:selfie_app/services/google_ml_service.dart';
 import 'package:selfie_app/ui/painters/image_mask_clipper.dart';
 import 'package:selfie_app/ui/painters/image_mask_painter.dart';
@@ -33,6 +34,17 @@ class _SelfiePageState extends State<SelfiePage> {
     setState(() {});
   }
 
+  Future<void> getClippedImage() async {
+    final image = img.decodeImage(widget.file.readAsBytesSync());
+    if (image != null && _mask != null) {
+      final pixels = image.toList();
+      final confidences = _mask!.confidences;
+      print('Pixels: ${pixels.length} ${confidences.length}');
+      // print('MAsk: ${_mask!.}')
+      // for (int i = 0; i < pixels.length; i++) {}
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -45,6 +57,16 @@ class _SelfiePageState extends State<SelfiePage> {
       appBar: AppBar(
         title: const Text('Selfie App'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await getClippedImage();
+            },
+            icon: const Icon(
+              Icons.add,
+            ),
+          ),
+        ],
       ),
       body: _buildBody(),
     );

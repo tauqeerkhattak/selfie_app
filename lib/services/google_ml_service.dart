@@ -11,7 +11,6 @@ class GoogleMlService {
 
   Future<SegmentationMask?> getSegmentedImage(File image) async {
     final inputImage = InputImage.fromFile(image);
-
     final mask = await segmenter.processImage(inputImage);
     log('MetaData: ${inputImage.metadata?.toJson()}');
     return mask;
