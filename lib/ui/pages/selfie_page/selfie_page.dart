@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_selfie_segmentation/google_mlkit_selfie_segmentation.dart';
 import 'package:image/image.dart' as img;
@@ -10,6 +11,28 @@ import 'package:selfie_app/ui/widgets/loader.dart';
 
 import '../../../services/locator.dart';
 
+Future<void> getClippedImage(String path, SegmentationMask mask) async {
+  final file = File(path);
+  final image = img.decodeImage(file.readAsBytesSync());
+  if (image != null) {
+    final pixels = image.toList();
+    final width = image.width;
+    final height = image.height;
+    final maskWidth = image.width;
+    final maskHeight = mask.height;
+    final confidences = mask.confidences;
+    for (final confidence in confidences) {
+      final pixelWidth = (confidence * width) / maskWidth;
+      final pixelHeight = (confidence * height) / maskHeight;
+      final pixel = (pixelHeight * pixelWidth).toInt();
+      if (pixel > pixels.length) {
+        print('Pixel is out of bound!');
+      }
+    }
+    print('No pixel is out of bound!');
+  }
+}
+
 class SelfiePage extends StatefulWidget {
   final File file;
   const SelfiePage({
@@ -19,6 +42,13 @@ class SelfiePage extends StatefulWidget {
 
   @override
   State<SelfiePage> createState() => _SelfiePageState();
+}
+
+Future<void> abc(String message) async {
+  await Future.delayed(
+    const Duration(seconds: 5),
+    () => print(message),
+  );
 }
 
 class _SelfiePageState extends State<SelfiePage> {
@@ -32,17 +62,6 @@ class _SelfiePageState extends State<SelfiePage> {
     _mask = mask;
     loading = false;
     setState(() {});
-  }
-
-  Future<void> getClippedImage() async {
-    final image = img.decodeImage(widget.file.readAsBytesSync());
-    if (image != null && _mask != null) {
-      final pixels = image.toList();
-      final confidences = _mask!.confidences;
-      print('Pixels: ${pixels.length} ${confidences.length}');
-      // print('MAsk: ${_mask!.}')
-      // for (int i = 0; i < pixels.length; i++) {}
-    }
   }
 
   @override
@@ -60,7 +79,7 @@ class _SelfiePageState extends State<SelfiePage> {
         actions: [
           IconButton(
             onPressed: () async {
-              await getClippedImage();
+              await compute<String, void>(abc, 'Hello');
             },
             icon: const Icon(
               Icons.add,
