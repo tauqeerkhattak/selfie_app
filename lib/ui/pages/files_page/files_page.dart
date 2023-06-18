@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:selfie_app/services/locator.dart';
-import 'package:selfie_app/ui/pages/selfie_page/selfie_page.dart';
 import 'package:selfie_app/utils/file_system_utils.dart';
+import 'package:thumbnailer/thumbnailer.dart';
 
 import '../../../services/google_ml_service.dart';
 import '../../../services/permission_service.dart';
@@ -85,6 +85,7 @@ class _FilesPageState extends State<FilesPage> {
       return MasonryGridView.count(
         crossAxisCount: 2,
         itemCount: files.length,
+        addAutomaticKeepAlives: false,
         itemBuilder: (context, index) {
           final file = files[index];
           return _buildFileView(file);
@@ -100,36 +101,49 @@ class _FilesPageState extends State<FilesPage> {
   Widget _buildFileView(FileSystemEntity file) {
     final isFile = FileManager.isFile(file);
     if (file.isImage()) {
-      return InkWell(
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => SelfiePage(
-              file: File(file.path),
-            ),
-          ),
-        ),
-        child: Container(
-          margin: const EdgeInsets.all(10),
-          padding: const EdgeInsets.all(5),
-          width: double.infinity,
-          height: MediaQuery.of(context).size.width * 0.4,
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: FileImage(
-                File(
-                  file.path,
-                ),
-              ),
-              filterQuality: FilterQuality.low,
-              isAntiAlias: false,
-              fit: BoxFit.fill,
-            ),
-          ),
-          alignment: Alignment.bottomLeft,
-          child: Text(file.getName()),
+      return Container(
+        margin: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(5),
+        width: double.infinity,
+        height: MediaQuery.of(context).size.width * 0.4,
+        child: Thumbnail(
+          mimeType: 'image/${file.path.split('.').last}',
+          widgetSize: 100,
+          dataResolver: () async {
+            return await File(file.path).readAsBytes();
+          },
         ),
       );
+      // return InkWell(
+      //   onTap: () => Navigator.push(
+      //     context,
+      //     MaterialPageRoute(
+      //       builder: (context) => SelfiePage(
+      //         file: File(file.path),
+      //       ),
+      //     ),
+      //   ),
+      //   child: Container(
+      //     margin: const EdgeInsets.all(10),
+      //     padding: const EdgeInsets.all(5),
+      //     width: double.infinity,
+      //     height: MediaQuery.of(context).size.width * 0.4,
+      //     decoration: BoxDecoration(
+      //       image: DecorationImage(
+      //         image: FileImage(
+      //           File(
+      //             file.path,
+      //           ),
+      //         ),
+      //         filterQuality: FilterQuality.low,
+      //         isAntiAlias: false,
+      //         fit: BoxFit.fill,
+      //       ),
+      //     ),
+      //     alignment: Alignment.bottomLeft,
+      //     child: Text(file.getName()),
+      //   ),
+      // );
     } else if (!isFile) {
       return Card(
         child: ListTile(
